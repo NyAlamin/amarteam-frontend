@@ -1,0 +1,365 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
+import { useLang } from "@/lib/language-context";
+import { useCart } from "@/lib/cart-context";
+import { useSettings } from "@/lib/settings-context";
+import { Role } from "@/lib/types";
+import { useState, useEffect } from "react";
+
+export default function Navbar() {
+  const { user, logout, loading } = useAuth();
+  const { lang, setLang, t } = useLang();
+  const { squadCount, shopCount } = useCart();
+  const { get } = useSettings();
+  const pathname = usePathname();
+
+  const [open, setOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  const logo = get("logo");
+  const siteName = get("siteName") || "আমার টিম";
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => { setOpen(false); setUserOpen(false); }, [pathname]);
+
+  const isActive = (href: string) => pathname === href.split("?")[0];
+
+  return (
+    <>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-dark/85 backdrop-blur-xl border-b border-white/[0.06] shadow-lg shadow-black/20"
+          : "bg-gradient-to-b from-black/60 to-transparent"
+      }`}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className={`flex justify-between items-center transition-all duration-300 ${scrolled ? "h-14" : "h-16"}`}>
+
+            {/* ─── LOGO ─── */}
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+              {logo ? (
+                <img src={logo} alt={siteName}
+                  className={`transition-all duration-300 object-contain ${scrolled ? "h-8" : "h-10"}`} />
+              ) : (
+                <div className={`rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center transition-all duration-300 ${
+                  scrolled ? "w-8 h-8" : "w-10 h-10"
+                }`}>
+                  <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-white">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="M12 7l3 2.2-1.15 3.5h-3.7L9 9.2 12 7z" fill="currentColor" />
+                  </svg>
+                </div>
+              )}
+              <span className={`font-bold text-white transition-all duration-300 ${scrolled ? "text-base" : "text-lg"}`}>
+                {siteName}
+              </span>
+            </Link>
+
+            {/* ─── DESKTOP NAV ─── */}
+            <div className="hidden lg:flex items-center gap-1">
+              <NavLink href="/players?playerType=player" active={pathname === "/players"} label={t("nav.players")} />
+              <NavLink href="/players?playerType=coach" label={t("nav.coaches")} />
+              <NavLink href="/players?playerType=referee" label={t("nav.referees")} />
+              <NavLink href="/team-builder" active={pathname === "/team-builder"} label="Build Team" />
+
+              {/* Services dropdown */}
+              <div className="relative"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}>
+                <button className={`text-sm font-medium px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 ${
+                  servicesOpen ? "text-white bg-white/[0.07]" : "text-white/65 hover:text-white hover:bg-white/[0.05]"
+                }`}>
+                  Services
+                  <svg viewBox="0 0 24 24" fill="none" className={`w-3.5 h-3.5 transition-transform ${servicesOpen ? "rotate-180" : ""}`}>
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+
+                {servicesOpen && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 animate-[fadeIn_0.15s_ease-out]">
+                    <div className="bg-dark-card/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/50 p-2 min-w-[240px]">
+                      <DropItem href="/cameramen" title="Cameramen" desc="Match coverage" color="from-pink-500 to-pink-700"
+  icon={<><rect x="2.5" y="7" width="13" height="10" rx="2" stroke="currentColor" strokeWidth="1.8" /><path d="M15.5 11l5-3v8l-5-3v-2z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><circle cx="7" cy="12" r="2.2" stroke="currentColor" strokeWidth="1.6" /></>} />
+<DropItem href="/vehicles" title="Vehicles" desc="Team transport" color="from-orange-500 to-orange-700"
+  icon={<><path d="M3 12l1.5-5h15L21 12M3 12v5a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-5M3 12h18" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><circle cx="7" cy="14.5" r="1.2" fill="currentColor" /><circle cx="17" cy="14.5" r="1.2" fill="currentColor" /></>} />
+<DropItem href="/shop" title="Sports Shop" desc="Gear & apparel" color="from-emerald-500 to-emerald-700"
+  icon={<><path d="M4 7h16l-1 12H5L4 7z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M9 7V5a3 3 0 016 0v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></>} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="w-px h-5 bg-white/10 mx-2" />
+
+              {/* Cart icons */}
+              <IconBtn href="/cart" count={squadCount} badgeColor="bg-red-500" label="Squad"
+                icon={<><path d="M17 21a1 1 0 100-2 1 1 0 000 2zM9 21a1 1 0 100-2 1 1 0 000 2z" fill="currentColor" /><path d="M2 3h2.5l2.2 11.3a1.5 1.5 0 001.5 1.2h8.8a1.5 1.5 0 001.5-1.2L21 7H5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></>} />
+
+              <IconBtn href="/checkout" count={shopCount} badgeColor="bg-primary-500" label="Cart"
+                icon={<><path d="M4 7h16l-1 12H5L4 7z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /><path d="M9 7V5a3 3 0 016 0v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></>} />
+
+              {/* Language */}
+              <button onClick={() => setLang(lang === "en" ? "bn" : "en")}
+                className="ml-1 px-3 py-1.5 rounded-full text-[11px] font-bold border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/5 transition">
+                {lang === "en" ? "বাংলা" : "EN"}
+              </button>
+
+              {!loading && (
+                user ? (
+                  /* User menu */
+                  <div className="relative ml-2"
+                    onMouseEnter={() => setUserOpen(true)}
+                    onMouseLeave={() => setUserOpen(false)}>
+                    <button className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full hover:bg-white/[0.07] transition">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-sm ring-2 ring-white/10">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <svg viewBox="0 0 24 24" fill="none" className={`w-3.5 h-3.5 text-white/50 transition-transform ${userOpen ? "rotate-180" : ""}`}>
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+
+                    {userOpen && (
+                      <div className="absolute top-full right-0 pt-2 animate-[fadeIn_0.15s_ease-out]">
+                        <div className="bg-dark-card/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/50 p-2 min-w-[220px]">
+                          <div className="px-3 py-2.5 border-b border-white/[0.07] mb-1">
+                            <p className="font-semibold text-white text-sm truncate">{user.name}</p>
+                            <p className="text-[11px] text-white/40 truncate">{user.email}</p>
+                          </div>
+
+                          {user.role === Role.ADMIN && <MenuItem href="/admin" label="Admin Panel" />}
+                          {user.role === Role.PLAYER && <MenuItem href="/player-panel" label="My Profile" />}
+                          <MenuItem href="/my-orders" label="My Orders" />
+                          <MenuItem href="/cart" label="My Squad" />
+                          <MenuItem href="/settings/security" label="Security" />
+
+                          <button onClick={logout}
+                            className="w-full text-left px-3 py-2 rounded-lg text-sm text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition mt-1">
+                            Logout
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 ml-2">
+                    <Link href="/auth/register-player"
+                      className="text-primary-400 hover:text-primary-300 text-[13px] font-semibold transition px-2">
+                      Join as Talent
+                    </Link>
+                    <Link href="/auth/login"
+                      className="text-white/70 hover:text-white text-sm font-medium transition px-2">
+                      {t("nav.login")}
+                    </Link>
+                    <Link href="/auth/register"
+                      className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-400 hover:to-primary-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-primary-900/40">
+                      {t("nav.register")}
+                    </Link>
+                  </div>
+                )
+              )}
+            </div>
+
+            {/* ─── MOBILE CONTROLS ─── */}
+            <div className="flex items-center gap-1 lg:hidden">
+              <Link href="/checkout" className="relative p-2 text-white/70">
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+                  <path d="M4 7h16l-1 12H5L4 7z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                  <path d="M9 7V5a3 3 0 016 0v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+                {shopCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 bg-primary-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-dark">
+                    {shopCount}
+                  </span>
+                )}
+              </Link>
+
+              <button onClick={() => setLang(lang === "en" ? "bn" : "en")}
+                className="px-2 py-1 rounded-full text-[10px] font-bold border border-white/15 text-white/80">
+                {lang === "en" ? "বা" : "EN"}
+              </button>
+
+              <button onClick={() => setOpen(!open)} className="p-2 text-white">
+                <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+                  {open ? (
+                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  ) : (
+                    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  )}
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* ─── MOBILE DRAWER ─── */}
+      {open && (
+        <div className="lg:hidden fixed inset-0 z-[60]">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-[fadeIn_0.2s]" onClick={() => setOpen(false)} />
+
+          <div className="absolute right-0 top-0 bottom-0 w-[85%] max-w-sm bg-dark-card border-l border-white/10 overflow-y-auto animate-[slideLeft_0.3s_cubic-bezier(0.16,1,0.3,1)]">
+            {/* Header */}
+            <div className="sticky top-0 bg-dark-card/95 backdrop-blur-xl border-b border-white/[0.07] p-4 flex justify-between items-center">
+              <div className="flex items-center gap-2.5">
+                {logo ? (
+                  <img src={logo} alt="" className="h-8 object-contain" />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700" />
+                )}
+                <span className="font-bold text-white">{siteName}</span>
+              </div>
+              <button onClick={() => setOpen(false)} className="text-white/50 p-1">
+                <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* User card */}
+            {user && (
+              <div className="m-4 p-4 rounded-2xl bg-gradient-to-br from-primary-900/40 to-dark border border-primary-800/40 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-white text-sm truncate">{user.name}</p>
+                  <p className="text-[11px] text-white/40 capitalize">{user.role}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="p-4 space-y-5">
+              <MobileGroup title="Talent">
+  <MobileLink href="/players?playerType=player" label="Players" onClick={() => setOpen(false)} />
+  <MobileLink href="/players?playerType=coach" label="Coaches" onClick={() => setOpen(false)} />
+  <MobileLink href="/players?playerType=referee" label="Referees" onClick={() => setOpen(false)} />
+  <MobileLink href="/cameramen" label="Cameramen" onClick={() => setOpen(false)} />
+  <MobileLink href="/team-builder" label="Build Team" onClick={() => setOpen(false)} />
+</MobileGroup>
+
+              <MobileGroup title="Services">
+  <MobileLink href="/vehicles" label="Vehicle Rental" onClick={() => setOpen(false)} />
+  <MobileLink href="/shop" label="Sports Shop" onClick={() => setOpen(false)} />
+  <MobileLink href="/cart" label="My Squad" badge={squadCount} onClick={() => setOpen(false)} />
+</MobileGroup>
+
+              <MobileGroup title="Account">
+                {user ? (
+                  <>
+                    {user.role === Role.ADMIN && <MobileLink href="/admin" label="Admin Panel" onClick={() => setOpen(false)} />}
+                    {user.role === Role.PLAYER && <MobileLink href="/player-panel" label="My Profile" onClick={() => setOpen(false)} />}
+                    <MobileLink href="/my-orders" label="My Orders" onClick={() => setOpen(false)} />
+                    <MobileLink href="/settings/security" label="Security" onClick={() => setOpen(false)} />
+                    <button onClick={() => { logout(); setOpen(false); }}
+                      className="w-full text-left px-4 py-3 rounded-xl text-sm text-red-400/80 hover:bg-red-500/10 transition">
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <MobileLink href="/auth/register-player" label="Join as Talent" onClick={() => setOpen(false)} />
+                    <MobileLink href="/auth/login" label="Login" onClick={() => setOpen(false)} />
+                    <Link href="/auth/register" onClick={() => setOpen(false)}
+                      className="block text-center bg-gradient-to-r from-primary-500 to-primary-600 text-white py-3 rounded-xl font-bold text-sm mt-2">
+                      Register
+                    </Link>
+                  </>
+                )}
+              </MobileGroup>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─── Sub-components ─── */
+
+function NavLink({ href, label, active }: { href: string; label: string; active?: boolean }) {
+  return (
+    <Link href={href}
+      className={`text-sm font-medium px-3.5 py-2 rounded-lg transition ${
+        active ? "text-white bg-white/[0.07]" : "text-white/65 hover:text-white hover:bg-white/[0.05]"
+      }`}>
+      {label}
+    </Link>
+  );
+}
+
+function DropItem({ href, title, desc, icon, color }: {
+  href: string; title: string; desc: string; icon: React.ReactNode; color: string;
+}) {
+  return (
+    <Link href={href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition group">
+      <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition`}>
+        <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">{icon}</svg>
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-white">{title}</p>
+        <p className="text-[11px] text-white/40">{desc}</p>
+      </div>
+    </Link>
+  );
+}
+
+function IconBtn({ href, count, icon, badgeColor, label }: {
+  href: string; count: number; icon: React.ReactNode; badgeColor: string; label: string;
+}) {
+  return (
+    <Link href={href} title={label}
+      className="relative p-2.5 rounded-lg text-white/65 hover:text-white hover:bg-white/[0.05] transition">
+      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">{icon}</svg>
+      {count > 0 && (
+        <span className={`absolute top-1 right-1 ${badgeColor} text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center ring-2 ring-dark`}>
+          {count > 9 ? "9+" : count}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+function MenuItem({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="block px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/[0.06] transition">
+      {label}
+    </Link>
+  );
+}
+
+function MobileGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-white/25 text-[10px] font-bold tracking-[0.15em] px-4 mb-1.5">{title.toUpperCase()}</p>
+      <div className="space-y-0.5">{children}</div>
+    </div>
+  );
+}
+
+function MobileLink({ href, label, onClick, badge }: {
+  href: string; label: string; onClick: () => void; badge?: number;
+}) {
+  return (
+    <Link href={href} onClick={onClick}
+      className="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-white/75 hover:text-white hover:bg-white/[0.06] transition">
+      <span>{label}</span>
+      {badge && badge > 0 ? (
+        <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{badge}</span>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white/20">
+          <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </Link>
+  );
+}
