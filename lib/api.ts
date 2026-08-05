@@ -97,6 +97,8 @@ export const teamRequestsAPI = {
 };
 
 export const usersAPI = {
+  getMe: () => api.get("/users/me"),
+  updateMe: (data: any) => api.patch("/users/me", data),
   getHirers: () => api.get("/users/hirers"),
   getAll: () => api.get("/users"),
   toggleActive: (id: string) => api.patch(`/users/${id}/toggle-active`),

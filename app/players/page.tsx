@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
@@ -10,7 +10,7 @@ import { playersAPI } from "@/lib/api";
 import { useLang } from "@/lib/language-context";
 import { Player } from "@/lib/types";
 
-export default function PlayersPage() {
+function PlayersContent() {
   const searchParams = useSearchParams();
   const { t } = useLang();
   const [players, setPlayers] = useState<Player[]>([]);
@@ -22,7 +22,7 @@ export default function PlayersPage() {
   const [sort, setSort] = useState("rating");
   const [playerType, setPlayerType] = useState(searchParams.get("playerType") || "");
 
-  const fetch = () => {
+  const load = () => {
     setLoading(true);
     const p: Record<string, string> = {};
     if (search) p.search = search;
@@ -34,7 +34,7 @@ export default function PlayersPage() {
     playersAPI.getAll(p).then(r => setPlayers(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetch(); }, [tier, position, available, sort, playerType]);
+  useEffect(() => { load(); }, [tier, position, available, sort, playerType]);
   useEffect(() => { setPlayerType(searchParams.get("playerType") || ""); }, [searchParams]);
 
   const title = playerType === "coach" ? t("nav.coaches") : playerType === "referee" ? t("nav.referees") : playerType === "player" ? t("nav.players") : t("common.all");
@@ -48,7 +48,7 @@ export default function PlayersPage() {
 
         {/* Filters */}
         <div className="glass rounded-2xl p-4 sm:p-5 mb-8">
-          <form onSubmit={e => { e.preventDefault(); fetch(); }} className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 items-end">
+          <form onSubmit={e => { e.preventDefault(); load(); }} className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 items-end">
             <div className="col-span-2 sm:flex-[2] sm:min-w-[200px]">
               <label className="block text-xs font-semibold text-white/50 mb-1">{t("common.search")}</label>
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="..."
@@ -109,5 +109,13 @@ export default function PlayersPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function PlayersPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-dark" />}>
+      <PlayersContent />
+    </Suspense>
   );
 }
