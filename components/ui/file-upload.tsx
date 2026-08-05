@@ -3,8 +3,8 @@
 import { useState, useRef } from "react";
 import { uploadAPI } from "@/lib/api";
 
-export default function FileUpload({ type, onUploaded, currentUrl, label }: {
-  type: "image" | "video"; onUploaded: (data: any) => void; currentUrl?: string; label?: string;
+export default function FileUpload({ type, onUploaded, currentUrl, label, isPublic }: {
+  type: "image" | "video"; onUploaded: (data: any) => void; currentUrl?: string; label?: string; isPublic?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentUrl || "");
@@ -16,7 +16,9 @@ export default function FileUpload({ type, onUploaded, currentUrl, label }: {
     if (type === "image") setPreview(URL.createObjectURL(file));
     setUploading(true);
     try {
-      const res = type === "image" ? await uploadAPI.image(file) : await uploadAPI.video(file);
+      const res = type === "image"
+        ? (isPublic ? await uploadAPI.publicImage(file) : await uploadAPI.image(file))
+        : await uploadAPI.video(file);
       onUploaded(res.data);
       if (type === "image") setPreview(res.data.url);
     } catch (err: any) { alert(err.response?.data?.message || "Upload failed"); setPreview(currentUrl || ""); }

@@ -245,7 +245,7 @@ export default function RegisterPlayerPage() {
     </button>
 
     {/* Photo */}
-    <FileUpload type="image" label="Profile Photo" onUploaded={d => setPhotoUrl(d.url)} />
+    <FileUpload type="image" label="Profile Photo" isPublic onUploaded={d => setPhotoUrl(d.url)} />
 
     {/* ─── ACCOUNT (all roles) ─── */}
     <div className="border-t border-dark-border pt-4">
