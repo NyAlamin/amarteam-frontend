@@ -109,12 +109,12 @@ export const uploadAPI = {
   image: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);
-    return api.post("/upload/image", fd);
+    return api.post("/upload/image", fd, { headers: { "Content-Type": "multipart/form-data" } });
   },
   publicImage: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);
-    return api.post("/upload/public/image", fd);
+    return api.post("/upload/public/image", fd, { headers: { "Content-Type": "multipart/form-data" } });
   },
   video: (file: File) => {
     const fd = new FormData(); fd.append("file", file);
