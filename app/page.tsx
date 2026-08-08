@@ -46,7 +46,7 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      playersAPI.getAll({ playerType: "player", sort: "rating" }),
+      playersAPI.getAll({ playerType: "player", sort: "rating", isForeign: "false" }),
       playersAPI.getAll({ playerType: "coach", sort: "rating" }),
       playersAPI.getAll({ playerType: "referee", sort: "rating" }),
       playersAPI.getAll({ playerType: "cameraman", sort: "rating" }),
