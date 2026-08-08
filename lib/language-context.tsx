@@ -26,6 +26,25 @@ const dict: Record<string, Record<Lang, string>> = {
   "nav.myProfile": { en: "My Profile", bn: "আমার প্রোফাইল" },
   "nav.registerAsPlayer": { en: "Register as Player", bn: "খেলোয়াড় হিসেবে রেজিস্টার" },
 
+  // Navbar — dropdown groups & labels
+  "nav.talent": { en: "Talent", bn: "খেলোয়াড়" },
+  "nav.services": { en: "Services", bn: "সেবা" },
+  "nav.foreign": { en: "Foreign Players", bn: "বিদেশি খেলোয়াড়" },
+  "nav.cameramen": { en: "Cameramen", bn: "ক্যামেরাম্যান" },
+  "nav.vehicles": { en: "Vehicles", bn: "যানবাহন" },
+  "nav.shop": { en: "Sports Shop", bn: "স্পোর্টস শপ" },
+  "nav.joinTalent": { en: "Join as Talent", bn: "খেলোয়াড় হিসেবে যোগ দিন" },
+  "nav.hirerRegister": { en: "Hirer Register", bn: "আয়োজক রেজিস্ট্রেশন" },
+
+  // Navbar — dropdown descriptions
+  "nav.playersDesc": { en: "Hire by position", bn: "পজিশন অনুযায়ী" },
+  "nav.coachesDesc": { en: "Licensed coaches", bn: "লাইসেন্সধারী কোচ" },
+  "nav.refereesDesc": { en: "Match officials", bn: "ম্যাচ অফিসিয়াল" },
+  "nav.foreignDesc": { en: "International talent", bn: "আন্তর্জাতিক খেলোয়াড়" },
+  "nav.cameramenDesc": { en: "Match coverage", bn: "ম্যাচ কভারেজ" },
+  "nav.vehiclesDesc": { en: "Team transport", bn: "দলের পরিবহন" },
+  "nav.shopDesc": { en: "Gear & apparel", bn: "সরঞ্জাম ও পোশাক" },
+
   // Hero
   "hero.title": { en: "Hire Top Football Talent", bn: "শীর্ষ ফুটবল প্রতিভা নিয়োগ করুন" },
   "hero.subtitle": { en: "Bangladesh's premier platform to discover and hire professional football players, coaches & referees.", bn: "বাংলাদেশের সেরা প্ল্যাটফর্ম — পেশাদার ফুটবল খেলোয়াড়, কোচ ও রেফারি খুঁজুন এবং নিয়োগ করুন।" },
@@ -45,6 +64,8 @@ const dict: Record<string, Record<Lang, string>> = {
   "section.topPlayers": { en: "Top Players", bn: "সেরা খেলোয়াড়" },
   "section.topCoaches": { en: "Top Coaches", bn: "সেরা কোচ" },
   "section.topReferees": { en: "Top Referees", bn: "সেরা রেফারি" },
+  "section.foreignPlayers": { en: "Foreign Players", bn: "বিদেশি খেলোয়াড়" },
+  "section.foreignSubtitle": { en: "International talent available in Bangladesh", bn: "বাংলাদেশে উপলব্ধ আন্তর্জাতিক খেলোয়াড়" },
   "section.viewAll": { en: "View All →", bn: "সব দেখুন →" },
   "section.noPlayers": { en: "No players yet", bn: "এখনো কোন খেলোয়াড় নেই" },
   "section.noCoaches": { en: "No coaches yet", bn: "এখনো কোন কোচ নেই" },
@@ -83,6 +104,9 @@ const dict: Record<string, Record<Lang, string>> = {
   "profile.leaveReview": { en: "Leave a Review", bn: "রিভিউ দিন" },
   "profile.submitReview": { en: "Submit Review", bn: "রিভিউ জমা দিন" },
   "profile.present": { en: "Present", bn: "বর্তমান" },
+  "profile.nationality": { en: "Nationality", bn: "জাতীয়তা" },
+  "profile.currentCountry": { en: "Currently In", bn: "বর্তমানে অবস্থান" },
+  "profile.availableWindow": { en: "Available in Bangladesh", bn: "বাংলাদেশে উপলব্ধ" },
 
   // Charges
   "charges.friendly": { en: "Friendly", bn: "ফ্রেন্ডলি" },
@@ -94,7 +118,7 @@ const dict: Record<string, Record<Lang, string>> = {
   "auth.signIn": { en: "Sign In", bn: "লগইন করুন" },
   "auth.signingIn": { en: "Signing in...", bn: "লগইন হচ্ছে..." },
   "auth.createAccount": { en: "Create Account", bn: "অ্যাকাউন্ট তৈরি করুন" },
-  "auth.registerAsHirer": { en: "Register as Hirer", bn: "নিয়োগকর্তা হিসেবে রেজিস্টার" },
+  "auth.registerAsHirer": { en: "Register as Hirer", bn: "আয়োজক হিসেবে রেজিস্টার" },
   "auth.noAccount": { en: "No account?", bn: "অ্যাকাউন্ট নেই?" },
   "auth.haveAccount": { en: "Have an account?", bn: "অ্যাকাউন্ট আছে?" },
   "auth.email": { en: "Email", bn: "ইমেইল" },
@@ -110,6 +134,7 @@ const dict: Record<string, Record<Lang, string>> = {
   "reg.player": { en: "Player", bn: "খেলোয়াড়" },
   "reg.coach": { en: "Coach", bn: "কোচ" },
   "reg.referee": { en: "Referee", bn: "রেফারি" },
+  "reg.foreignPlayer": { en: "Foreign Player", bn: "বিদেশি খেলোয়াড়" },
   "reg.submit": { en: "Submit Registration", bn: "রেজিস্ট্রেশন জমা দিন" },
   "reg.submitting": { en: "Submitting...", bn: "জমা হচ্ছে..." },
   "reg.success": { en: "Registration submitted! Admin will review your profile.", bn: "রেজিস্ট্রেশন জমা হয়েছে! অ্যাডমিন আপনার প্রোফাইল পর্যালোচনা করবে।" },
@@ -144,7 +169,7 @@ const dict: Record<string, Record<Lang, string>> = {
   "admin.pending": { en: "Pending", bn: "অপেক্ষমাণ" },
   "admin.tiers": { en: "Tiers", bn: "টিয়ার" },
   "admin.bookings": { en: "Bookings", bn: "বুকিং" },
-  "admin.hirers": { en: "Hirers", bn: "নিয়োগকর্তা" },
+  "admin.hirers": { en: "Hirers", bn: "আয়োজক" },
   "admin.teamRequests": { en: "Team Requests", bn: "টিম অনুরোধ" },
   "admin.reviews": { en: "Reviews", bn: "রিভিউ" },
   "admin.settings": { en: "Settings", bn: "সেটিংস" },
@@ -156,6 +181,7 @@ const dict: Record<string, Record<Lang, string>> = {
   "common.filter": { en: "Filter", bn: "ফিল্টার" },
   "common.allTiers": { en: "All Tiers", bn: "সকল টিয়ার" },
   "common.allPositions": { en: "All Positions", bn: "সকল পজিশন" },
+  "common.allCountries": { en: "All Countries", bn: "সকল দেশ" },
   "common.all": { en: "All", bn: "সব" },
   "common.topRated": { en: "Top Rated", bn: "সেরা রেটেড" },
   "common.save": { en: "Save", bn: "সংরক্ষণ" },
@@ -166,6 +192,8 @@ const dict: Record<string, Record<Lang, string>> = {
   "common.loading": { en: "Loading...", bn: "লোড হচ্ছে..." },
   "common.backToSite": { en: "Back to Site", bn: "সাইটে ফিরুন" },
   "common.year": { en: "yr", bn: "বছর" },
+  "common.found": { en: "found", bn: "পাওয়া গেছে" },
+  "common.noResults": { en: "No results found.", bn: "কোন ফলাফল পাওয়া যায়নি।" },
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
