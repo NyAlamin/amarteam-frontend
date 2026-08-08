@@ -24,6 +24,17 @@ const typeBadge: Record<string, { icon: string; label: string; bg: string }> = {
   cameraman: { icon: "📷", label: "Cameraman", bg: "bg-pink-600" },
 };
 
+/**
+ * Face-aware crop via Cloudinary. Portrait uploads framed at any distance
+ * get centred on the detected face instead of being sliced by object-cover.
+ * Non-Cloudinary URLs pass through untouched.
+ */
+const facePhoto = (url?: string) => {
+  if (!url) return "";
+  if (!url.includes("/upload/") || url.includes("g_face")) return url;
+  return url.replace("/upload/", "/upload/c_fill,g_face,w_500,h_667,q_auto,f_auto/");
+};
+
 export function TierBadge({ tier, size = "sm" }: { tier: Tier; size?: "sm" | "lg" }) {
   return (
     <span
@@ -74,15 +85,17 @@ export default function PlayerCard({ player: p }: { player: Player }) {
   };
 
   return (
-    <Link href={`/players/${p.id}`}>
-      <div className="bg-dark-card border border-dark-border rounded-2xl overflow-hidden cursor-pointer card-hover group relative">
+    <Link href={`/players/${p.id}`} className="block h-full">
+      <div className="bg-dark-card border border-dark-border rounded-2xl overflow-hidden cursor-pointer card-hover group relative h-full flex flex-col">
         {/* Photo */}
-        <div className="relative h-24 sm:h-44 lg:h-56 bg-gradient-to-br from-primary-900/50 to-dark overflow-hidden">
+        <div className="relative aspect-[3/4] shrink-0 bg-gradient-to-br from-primary-900/50 to-dark overflow-hidden">
           {p.photo ? (
             <img
-              src={p.photo}
+              src={facePhoto(p.photo)}
               alt={p.user?.name}
+              loading="lazy"
               className="w-full h-full object-cover img-zoom opacity-90 group-hover:opacity-100"
+              style={{ objectPosition: "50% 25%" }}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary-800 to-primary-950 flex items-center justify-center text-6xl font-bold text-white/20">
@@ -94,20 +107,20 @@ export default function PlayerCard({ player: p }: { player: Player }) {
 
           {/* Badges */}
           <div className="absolute top-1 right-1 sm:top-3 sm:right-3 flex flex-col gap-1 items-end">
-  <span className={`${p.tier === "A" ? "bg-yellow-500" : p.tier === "B" ? "bg-slate-400" : "bg-amber-700"} text-white px-1.5 py-0.5 rounded text-[8px] sm:text-xs font-bold`}>
-    {p.tier}
-  </span>
-  <span className="hidden sm:block"><TypeBadge playerType={p.playerType} /></span>
-</div>
+            <span className={`${p.tier === "A" ? "bg-yellow-500" : p.tier === "B" ? "bg-slate-400" : "bg-amber-700"} text-white px-1.5 py-0.5 rounded text-[8px] sm:text-xs font-bold`}>
+              {p.tier}
+            </span>
+            <span className="hidden sm:block"><TypeBadge playerType={p.playerType} /></span>
+          </div>
 
           {/* Position badge for players */}
           {p.playerType === "player" && p.position && (
-  <div className="absolute top-1 left-1 sm:top-3 sm:left-3">
-    <span className="bg-red-600 text-white px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded sm:rounded-full text-[8px] sm:text-[11px] font-bold">
-      {p.position}
-    </span>
-  </div>
-)}
+            <div className="absolute top-1 left-1 sm:top-3 sm:left-3">
+              <span className="bg-red-600 text-white px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded sm:rounded-full text-[8px] sm:text-[11px] font-bold">
+                {p.position}
+              </span>
+            </div>
+          )}
 
           {!p.isAvailable && (
             <div className="absolute bottom-0 inset-x-0 bg-red-600/90 text-white text-center text-xs font-bold py-1.5 tracking-wide">
@@ -117,17 +130,16 @@ export default function PlayerCard({ player: p }: { player: Player }) {
 
           {/* Name overlay */}
           <div className="absolute bottom-1 left-1.5 right-1.5 sm:bottom-3 sm:left-4 sm:right-4">
-  <h3 className="font-bold text-white text-[10px] sm:text-base lg:text-xl truncate drop-shadow-lg leading-tight">
-    {p.user?.name}
-  </h3>
-</div>
+            <h3 className="font-bold text-white text-[10px] sm:text-base lg:text-xl truncate drop-shadow-lg leading-tight">
+              {p.user?.name}
+            </h3>
+          </div>
         </div>
 
         {/* Info */}
-        {/* Info */}
-<div className="p-1.5 sm:p-3 lg:p-4">
+        <div className="p-1.5 sm:p-3 lg:p-4 flex-1 flex flex-col">
           <div className="flex justify-between items-center mb-1 sm:mb-3">
-  <span className="text-primary-400 font-semibold text-[9px] sm:text-sm truncate">
+            <span className="text-primary-400 font-semibold text-[9px] sm:text-sm truncate">
               {p.playerType === "player"
                 ? p.position
                 : p.playerType === "coach"
@@ -137,44 +149,44 @@ export default function PlayerCard({ player: p }: { player: Player }) {
                 : "Cameraman"}
             </span>
             <span className="hidden sm:block">
-  {(p.reviews?.length ?? 0) > 0 ? <Stars rating={p.rating} /> : <span className="text-xs text-white/30">No ratings</span>}
-</span>
+              {(p.reviews?.length ?? 0) > 0 ? <Stars rating={p.rating} /> : <span className="text-xs text-white/30">No ratings</span>}
+            </span>
           </div>
 
           {currentClub && (
-  <p className="text-white/50 text-[8px] sm:text-xs mb-1 truncate">{currentClub.name}</p>
-)}
+            <p className="text-white/50 text-[8px] sm:text-xs mb-1 truncate">{currentClub.name}</p>
+          )}
 
-{hasNational && (
-  <p className="hidden sm:block text-yellow-500/80 text-xs font-semibold mb-2">
-    🇧🇩 {currentNational ? currentNational.level : "National Team"}
-  </p>
-)}
+          {hasNational && (
+            <p className="hidden sm:block text-yellow-500/80 text-xs font-semibold mb-2">
+              🇧🇩 {currentNational ? currentNational.level : "National Team"}
+            </p>
+          )}
 
-          <div className="flex justify-between items-center border-t border-dark-border pt-1.5 sm:pt-3 mt-1 gap-1">
-  <span className="text-white/40 text-[8px] sm:text-xs truncate">
-    {p.district || p.location || "BD"}
-  </span>
-  <span className={`px-1 py-0.5 sm:px-2.5 sm:py-1 rounded text-[7px] sm:text-xs font-semibold shrink-0 ${
-    p.isAvailable
-      ? "bg-primary-900/50 text-primary-400 border border-primary-800"
-      : "bg-red-900/30 text-red-400 border border-red-900"
-  }`}>
-    {p.isAvailable ? "Free" : "Busy"}
-  </span>
-</div>
+          <div className="flex justify-between items-center border-t border-dark-border pt-1.5 sm:pt-3 mt-auto gap-1">
+            <span className="text-white/40 text-[8px] sm:text-xs truncate">
+              {p.district || p.location || "BD"}
+            </span>
+            <span className={`px-1 py-0.5 sm:px-2.5 sm:py-1 rounded text-[7px] sm:text-xs font-semibold shrink-0 ${
+              p.isAvailable
+                ? "bg-primary-900/50 text-primary-400 border border-primary-800"
+                : "bg-red-900/30 text-red-400 border border-red-900"
+            }`}>
+              {p.isAvailable ? "Free" : "Busy"}
+            </span>
+          </div>
 
           {/* Add to Squad — hirers only, players only */}
           {isHirer && p.isAvailable && p.playerType === "player" && (
-  <button onClick={handleSquadClick}
-    className={`w-full mt-1.5 sm:mt-3 py-1 sm:py-2 rounded-lg sm:rounded-xl text-[8px] sm:text-sm font-semibold transition ${
-      inSquad
-        ? "bg-red-900/30 text-red-400 border border-red-800"
-        : "bg-primary-900/30 text-primary-400 border border-primary-800"
-    }`}>
-    {inSquad ? "✕ Remove" : "+ Squad"}
-  </button>
-)}
+            <button onClick={handleSquadClick}
+              className={`w-full mt-1.5 sm:mt-3 py-1 sm:py-2 rounded-lg sm:rounded-xl text-[8px] sm:text-sm font-semibold transition ${
+                inSquad
+                  ? "bg-red-900/30 text-red-400 border border-red-800"
+                  : "bg-primary-900/30 text-primary-400 border border-primary-800"
+              }`}>
+              {inSquad ? "✕ Remove" : "+ Squad"}
+            </button>
+          )}
         </div>
       </div>
     </Link>
