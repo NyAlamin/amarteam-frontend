@@ -26,6 +26,17 @@ const TYPE_ICONS: Record<string, string> = {
   cameraman: "📷",
 };
 
+/* Suggestions only — the field stays free-text so any nationality works */
+const COUNTRY_SUGGESTIONS = [
+  "Brazil", "Argentina", "Nigeria", "Ghana", "Cameroon", "Senegal", "Ivory Coast",
+  "Morocco", "Egypt", "Kenya", "Uganda", "South Africa", "Spain", "Portugal",
+  "Brazil", "England", "France", "Germany", "Italy", "Netherlands", "Croatia",
+  "Serbia", "Ukraine", "Russia", "Turkey", "Iran", "Iraq", "Uzbekistan",
+  "Japan", "South Korea", "Australia", "India", "Nepal", "Sri Lanka",
+  "Pakistan", "Afghanistan", "Maldives", "Bhutan", "Myanmar", "Thailand",
+  "Indonesia", "Malaysia", "Philippines", "Vietnam", "China",
+];
+
 export default function RegisterPlayerPage() {
   const router = useRouter();
   const { t, lang } = useLang();
@@ -40,6 +51,9 @@ export default function RegisterPlayerPage() {
   playerType: "player",
   position: "ST",
   age: 20, experience: 0, location: "", bio: "",
+  // Foreign player
+  isForeign: false, nationality: "", currentCountry: "",
+  availableFrom: "", availableTo: "",
   // Coach
   coachingLicense: "", specialization: "Head Coach", tacticsStyle: "",
   // Referee
@@ -58,9 +72,10 @@ export default function RegisterPlayerPage() {
   const isCoach = form.playerType === "coach";
   const isReferee = form.playerType === "referee";
   const isCameraman = form.playerType === "cameraman";
+  const isForeign = form.isForeign;
 
-  const pickRole = (v: string) => {
-    upd("playerType", v);
+  const pickRole = (v: string, foreign = false) => {
+    setForm(prev => ({ ...prev, playerType: v, isForeign: foreign }));
     setStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -98,8 +113,22 @@ export default function RegisterPlayerPage() {
   if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)) {
     showToast("Password needs uppercase, lowercase & a number", "error"); return;
   }
-  if (!/^01\d{9}$/.test(form.phone)) {
+
+  // Foreign players may not hold a BD number — accept international format
+  if (isForeign) {
+    if (!/^\+?\d{8,15}$/.test(form.phone.replace(/[\s-]/g, ""))) {
+      showToast("Enter a valid phone number with country code", "error"); return;
+    }
+  } else if (!/^01\d{9}$/.test(form.phone)) {
     showToast("Enter a valid BD phone number (01XXXXXXXXX)", "error"); return;
+  }
+
+  // Foreign-specific validation
+  if (isForeign && !form.nationality.trim()) {
+    showToast("Nationality is required", "error"); return;
+  }
+  if (isForeign && form.availableFrom && form.availableTo && form.availableTo < form.availableFrom) {
+    showToast("Available-until date must come after the start date", "error"); return;
   }
 
   // Cameraman-specific validation
@@ -144,6 +173,16 @@ export default function RegisterPlayerPage() {
     };
 
     if (isPlayer) payload.position = form.position;
+
+    if (isForeign) {
+      payload.isForeign = true;
+      payload.nationality = form.nationality.trim();
+      payload.currentCountry = form.currentCountry.trim() || undefined;
+      payload.availableFrom = form.availableFrom || undefined;
+      payload.availableTo = form.availableTo || undefined;
+      payload.district = form.district || undefined;
+      payload.upazila = form.upazila || undefined;
+    }
 
     if (isCoach) {
       payload.coachingLicense = form.coachingLicense || undefined;
@@ -211,6 +250,18 @@ export default function RegisterPlayerPage() {
                     </span>
                   </button>
                 ))}
+
+                {/* Foreign player — same playerType as a player, flagged separately */}
+                <button
+                  type="button"
+                  onClick={() => pickRole("player", true)}
+                  className="glass rounded-2xl p-6 text-center border-2 border-blue-900/60 hover:border-blue-500 transition group"
+                >
+                  <span className="block text-3xl mb-2 group-hover:scale-110 transition">🌍</span>
+                  <span className="font-bold text-white text-sm block">
+                    {lang === "bn" ? "বিদেশি খেলোয়াড়" : "Foreign Player"}
+                  </span>
+                </button>
               </div>
 
               <p className="text-center text-sm text-white/40 mt-8">
@@ -230,15 +281,19 @@ export default function RegisterPlayerPage() {
     <button
       type="button"
       onClick={() => setStep(1)}
-      className="w-full glass rounded-xl p-3 flex items-center gap-3 border-2 border-primary-600 hover:opacity-90 transition"
+      className={`w-full glass rounded-xl p-3 flex items-center gap-3 border-2 hover:opacity-90 transition ${
+        isForeign ? "border-blue-600" : "border-primary-600"
+      }`}
     >
-      <span className="text-2xl">{TYPE_ICONS[form.playerType]}</span>
+      <span className="text-2xl">{isForeign ? "🌍" : TYPE_ICONS[form.playerType]}</span>
       <div className="flex-1 text-left">
         <p className="text-[10px] text-white/40 uppercase tracking-widest">Registering as</p>
-        <p className="font-bold text-primary-400 text-sm">
-          {lang === "bn"
-            ? PLAYER_TYPES.find(p => p.value === form.playerType)?.labelBn
-            : PLAYER_TYPES.find(p => p.value === form.playerType)?.labelEn}
+        <p className={`font-bold text-sm ${isForeign ? "text-blue-400" : "text-primary-400"}`}>
+          {isForeign
+            ? (lang === "bn" ? "বিদেশি খেলোয়াড়" : "Foreign Player")
+            : (lang === "bn"
+              ? PLAYER_TYPES.find(p => p.value === form.playerType)?.labelBn
+              : PLAYER_TYPES.find(p => p.value === form.playerType)?.labelEn)}
         </p>
       </div>
       <span className="text-white/40 text-xs font-semibold">Change</span>
@@ -269,10 +324,72 @@ export default function RegisterPlayerPage() {
         <div>
           <label className={LABEL}>Phone *</label>
           <input value={form.phone} onChange={e => upd("phone", e.target.value)}
-            placeholder="01XXXXXXXXX" className={INPUT} />
+            placeholder={isForeign ? "+8801XXXXXXXXX or home number" : "01XXXXXXXXX"} className={INPUT} />
         </div>
       </div>
     </div>
+
+    {/* ═══════════════════════════════════════════ */}
+    {/* ─────────── FOREIGN PLAYER EXTRAS ─────────── */}
+    {/* ═══════════════════════════════════════════ */}
+    {isForeign && (
+      <div className="border-t border-dark-border pt-4 space-y-3">
+        <h3 className="font-semibold text-sm text-white">🌍 Nationality & Availability</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className={LABEL}>Nationality *</label>
+            <input list="country-list" value={form.nationality}
+              onChange={e => upd("nationality", e.target.value)}
+              placeholder="e.g. Brazil" className={INPUT} />
+          </div>
+          <div>
+            <label className={LABEL}>Currently Living In</label>
+            <input list="country-list" value={form.currentCountry}
+              onChange={e => upd("currentCountry", e.target.value)}
+              placeholder="e.g. Bangladesh" className={INPUT} />
+          </div>
+        </div>
+
+        <datalist id="country-list">
+          {[...new Set(COUNTRY_SUGGESTIONS)].sort().map(c => <option key={c} value={c} />)}
+        </datalist>
+
+        <div>
+          <p className={LABEL}>Availability Window in Bangladesh</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <input type="date" value={form.availableFrom}
+                onChange={e => upd("availableFrom", e.target.value)}
+                className={INPUT} style={{ colorScheme: "dark" }} />
+              <p className="text-[10px] text-white/30 mt-1">Available from</p>
+            </div>
+            <div>
+              <input type="date" value={form.availableTo}
+                onChange={e => upd("availableTo", e.target.value)}
+                className={INPUT} style={{ colorScheme: "dark" }} />
+              <p className="text-[10px] text-white/30 mt-1">Available until</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-white/30 mt-2">
+            Optional — leave blank if you're available year-round.
+          </p>
+        </div>
+
+        <div>
+          <p className={LABEL}>Location in Bangladesh</p>
+          <p className="text-[11px] text-white/40 mb-2">
+            Optional — add only if you're already based here.
+          </p>
+          <LocationPicker
+            district={form.district}
+            upazila={form.upazila}
+            onDistrictChange={v => setForm(prev => ({ ...prev, district: v }))}
+            onUpazilaChange={v => setForm(prev => ({ ...prev, upazila: v }))}
+          />
+        </div>
+      </div>
+    )}
 
     {/* ═══════════════════════════════════════════ */}
     {/* ─────────── CAMERAMAN FORM ─────────── */}
@@ -453,7 +570,7 @@ export default function RegisterPlayerPage() {
               <input type="number" value={form.experience} onChange={e => upd("experience", +e.target.value)} className={INPUT} />
             </div>
             <div>
-              <label className={LABEL}>Location</label>
+              <label className={LABEL}>{isForeign ? "Home City" : "Location"}</label>
               <input value={form.location} onChange={e => upd("location", e.target.value)}
                 placeholder="City" className={INPUT} />
             </div>
@@ -550,11 +667,17 @@ export default function RegisterPlayerPage() {
         {!isReferee && (
           <div className="border-t border-dark-border pt-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-sm text-white">🇧🇩 National Team</h3>
+              <h3 className="font-semibold text-sm text-white">
+                {isForeign ? "🌍 National Team" : "🇧🇩 National Team"}
+              </h3>
               <button type="button" onClick={addNational} className="text-primary-400 text-sm font-semibold">+ Add</button>
             </div>
             {nationals.length === 0 && (
-              <p className="text-white/30 text-sm">Optional — add if you represented Bangladesh.</p>
+              <p className="text-white/30 text-sm">
+                {isForeign
+                  ? "Optional — add if you represented your country."
+                  : "Optional — add if you represented Bangladesh."}
+              </p>
             )}
             {nationals.map((n, i) => (
               <div key={i} className="bg-dark-card rounded-xl p-3 mb-2 border border-dark-border">
@@ -588,6 +711,7 @@ export default function RegisterPlayerPage() {
           isCameraman ? "Your shooting style, past coverage, what makes your work stand out..." :
           isCoach ? "Your coaching philosophy, achievements..." :
           isReferee ? "Your officiating experience, notable matches..." :
+          isForeign ? "Your playing style, achievements, why you want to play in Bangladesh..." :
           "Tell us about yourself, playing style, achievements..."
         }
         className={INPUT} />

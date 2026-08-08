@@ -25,6 +25,7 @@ function PlayersContent() {
   const load = () => {
     setLoading(true);
     const p: Record<string, string> = {};
+    p.isForeign = "false";
     if (search) p.search = search;
     if (tier) p.tier = tier;
     if (position) p.position = position;

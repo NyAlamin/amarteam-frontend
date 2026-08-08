@@ -69,6 +69,7 @@ export default function Navbar() {
               <NavLink href="/players?playerType=player" active={pathname === "/players"} label={t("nav.players")} />
               <NavLink href="/players?playerType=coach" label={t("nav.coaches")} />
               <NavLink href="/players?playerType=referee" label={t("nav.referees")} />
+              <NavLink href="/foreign-players" active={pathname === "/foreign-players"} label="🌍 Foreign" />
               <NavLink href="/team-builder" active={pathname === "/team-builder"} label="Build Team" />
 
               {/* Services dropdown */}
@@ -154,7 +155,7 @@ export default function Navbar() {
                   <div className="flex items-center gap-2 ml-2">
                     <Link href="/auth/register-player"
                       className="text-primary-400 hover:text-primary-300 text-[13px] font-semibold transition px-2">
-                      Join as Talent
+                      Join as Player and Cameraman
                     </Link>
                     <Link href="/auth/login"
                       className="text-white/70 hover:text-white text-sm font-medium transition px-2">
@@ -243,6 +244,7 @@ export default function Navbar() {
   <MobileLink href="/players?playerType=player" label="Players" onClick={() => setOpen(false)} />
   <MobileLink href="/players?playerType=coach" label="Coaches" onClick={() => setOpen(false)} />
   <MobileLink href="/players?playerType=referee" label="Referees" onClick={() => setOpen(false)} />
+  <MobileLink href="/foreign-players" label="🌍 Foreign Players" onClick={() => setOpen(false)} />
   <MobileLink href="/cameramen" label="Cameramen" onClick={() => setOpen(false)} />
   <MobileLink href="/team-builder" label="Build Team" onClick={() => setOpen(false)} />
 </MobileGroup>
