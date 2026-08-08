@@ -13,6 +13,8 @@ import { playersAPI, vehiclesAPI, shopAPI } from "@/lib/api";
 import { useLang } from "@/lib/language-context";
 import { Player, Vehicle, Product } from "@/lib/types";
 import { useSettings } from "@/lib/settings-context";
+import ForeignPlayersSection from "@/components/ui/foreign-players-section";
+
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -163,13 +165,15 @@ export default function HomePage() {
   </div>
 
   {/* Scroll cue */}
-  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 animate-[bounce-subtle_2.5s_infinite]">
+  {/* <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 animate-[bounce-subtle_2.5s_infinite]">
     <span className="text-[10px] text-white/25 tracking-widest">SCROLL</span>
     <div className="w-5 h-8 rounded-full border-2 border-white/15 flex items-start justify-center p-1.5">
       <div className="w-1 h-1.5 bg-white/40 rounded-full animate-[slideUp_1.5s_infinite]" />
     </div>
-  </div>
+  </div> */}
 </section>
+
+<ForeignPlayersSection />
 
       {/* ─── SECTIONS ─── */}
       <Section title="Top Players" icon="⚽" link="/players?playerType=player" loading={loading} empty={players.length === 0}>

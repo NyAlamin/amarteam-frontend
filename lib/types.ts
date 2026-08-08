@@ -120,6 +120,14 @@ export interface Player {
   stats: PlayerStats; availableDates: string[];
   unavailableDates: string[]; videos: VideoEntry[];
   tournaments: string[]; matchHistory: MatchHistoryEntry[];
+
+  //for foreign players
+
+  isForeign?: boolean;
+  nationality?: string;
+  currentCountry?: string;
+  availableFrom?: string | null;
+  availableTo?: string | null;
   // Coach fields
   coachingLicense?: string;
   specialization?: string;
