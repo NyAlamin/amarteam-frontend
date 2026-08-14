@@ -11,6 +11,8 @@ import Loading from "@/components/ui/loading";
 import { useToast } from "@/lib/hooks";
 import { TeamRequest, Player, TEAM_STATUS_INFO, FOOTBALL_POSITIONS } from "@/lib/types";
 import { generateTeamRequestPDF } from "@/lib/pdf-generator";
+import PaymentPanel from "@/components/admin/payment-panel";
+
 
 const INPUT = "w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition";
 const LABEL = "block text-sm font-semibold mb-1 text-slate-700";
@@ -24,7 +26,7 @@ const STATUS_LIGHT: Record<string, { bg: string; text: string }> = {
 };
 
 export default function TeamRequestDetailPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const { toast, showToast } = useToast();
 
   const [tr, setTr] = useState<TeamRequest | null>(null);
@@ -322,8 +324,15 @@ tr.squad?.forEach(s => {
         />
       )}
       {toast && <Toast message={toast.message} type={toast.type} />}
+
+      <div className="mt-6">
+        <PaymentPanel refType="teamRequest" refId={id as string} />
+      </div>
+      
     </div>
+    
   );
+  
 }
 
 function Row({ label, value, highlight }: { label: string; value?: string; highlight?: boolean }) {
