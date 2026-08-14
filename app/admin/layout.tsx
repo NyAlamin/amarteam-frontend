@@ -23,6 +23,7 @@ const nav = [
   { href: "/admin/shop/products", label: "Products", icon: "🛍️", group: "Manage" },
   { href: "/admin/shop/categories", label: "Categories", icon: "🏷️", group: "Manage" },
   { href: "/admin/shop/orders", label: "Orders", icon: "📦", group: "Manage" },
+  { href: "/admin/commissions", label: "Commissions", icon: "💰", group: "Manage" },
 
   { href: "/admin/hirers", label: "Hirers", icon: "🤝", group: "Other" },
   { href: "/admin/reviews", label: "Reviews", icon: "💬", group: "Other" },

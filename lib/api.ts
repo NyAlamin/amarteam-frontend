@@ -185,4 +185,14 @@ export const settingsAPI = {
   remove: (key: string) => api.delete(`/settings/${key}`),
 };
 
+export const paymentsAPI = {
+  getRates: () => api.get("/payments/rates"),
+  quote: (refType: string, refId: string) => api.get(`/payments/quote/${refType}/${refId}`),
+  ledger: (refType: string, refId: string) => api.get(`/payments/ledger/${refType}/${refId}`),
+  totals: () => api.get("/payments/totals"),
+  record: (data: any) => api.post("/payments/record", data),
+  payout: (data: any) => api.post("/payments/payout", data),
+  direct: (data: any) => api.post("/payments/direct", data),
+};
+
 export default api;
