@@ -1,3 +1,5 @@
+//app/admin/vehicle-bookings/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";

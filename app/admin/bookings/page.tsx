@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { bookingsAPI } from "@/lib/api";
 import StatusPill from "@/components/ui/status-pill";
 import Toast from "@/components/ui/toast";
@@ -13,15 +14,15 @@ export default function AdminBookingsPage() {
   const [loading, setLoading] = useState(true);
   const { toast, showToast } = useToast();
 
-  const fetch = () => { bookingsAPI.getAll().then(r => setBookings(r.data)).finally(() => setLoading(false)); };
-  useEffect(() => { fetch(); }, []);
+  const load = () => { bookingsAPI.getAll().then(r => setBookings(r.data)).finally(() => setLoading(false)); };
+  useEffect(() => { load(); }, []);
 
   const action = async (id: string, act: "confirm" | "cancel" | "complete") => {
     try {
       if (act === "confirm") await bookingsAPI.confirm(id);
       else if (act === "cancel") await bookingsAPI.cancel(id);
       else await bookingsAPI.complete(id);
-      showToast(`Booking ${act}ed`); fetch();
+      showToast(`Booking ${act}ed`); load();
     } catch (err: any) { showToast(err.response?.data?.message || "Failed", "error"); }
   };
 
@@ -42,12 +43,16 @@ export default function AdminBookingsPage() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-slate-400">{b.matchType || "Match"}</span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 {b.status === "pending" && <>
                   <button onClick={() => action(b.id, "confirm")} className="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-xs font-bold">✓ Confirm</button>
                   <button onClick={() => action(b.id, "cancel")} className="bg-red-100 text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold">✕ Cancel</button>
                 </>}
                 {b.status === "confirmed" && <button onClick={() => action(b.id, "complete")} className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold">Complete</button>}
+                <Link href={`/admin/bookings/${b.id}`}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                  Payment →
+                </Link>
               </div>
             </div>
           </div>

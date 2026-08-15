@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { cameramenAPI } from "@/lib/api";
 import Toast from "@/components/ui/toast";
 import Loading from "@/components/ui/loading";
@@ -146,6 +147,10 @@ export default function AdminCameramanBookingsPage() {
                       {b.cameraman?.user?.phone && (
                         <a href={`tel:${b.cameraman.user.phone}`} className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold">📞 Cameraman</a>
                       )}
+                      <Link href={`/admin/cameraman-bookings/${b.id}`}
+                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                        Payment →
+                      </Link>
                       <button onClick={() => startEdit(b)} className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold">Update</button>
                     </div>
                   </div>
