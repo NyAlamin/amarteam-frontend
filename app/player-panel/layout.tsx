@@ -38,6 +38,7 @@ export default function PlayerPanelLayout({ children }: { children: React.ReactN
         { href: "/player-panel/portfolio", label: "Portfolio", icon: "📷" },
         { href: "/player-panel/cameraman-bookings", label: "Bookings", icon: "📋" },
         { href: "/player-panel/availability", label: "Dates", icon: "📅" },
+        { href: "/player-panel/earnings", label: "Earnings", icon: "💰" },
       ]
     : [
         { href: "/player-panel", label: "Profile", icon: "👤" },

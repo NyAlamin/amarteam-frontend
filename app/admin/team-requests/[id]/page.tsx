@@ -33,6 +33,7 @@ export default function TeamRequestDetailPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingFees, setSavingFees] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   const [form, setForm] = useState({
@@ -41,6 +42,9 @@ export default function TeamRequestDetailPage() {
     finalAmount: "",
     advanceAmount: "",
   });
+
+  /** Per-player fee, keyed by playerId. Talent sees this on their earnings page. */
+  const [fees, setFees] = useState<Record<string, string>>({});
 
   const load = () => {
     Promise.all([
@@ -55,6 +59,11 @@ export default function TeamRequestDetailPage() {
         finalAmount: r.data.finalAmount ? String(r.data.finalAmount) : "",
         advanceAmount: r.data.advanceAmount ? String(r.data.advanceAmount) : "",
       });
+      const f: Record<string, string> = {};
+      (r.data.squad || []).forEach((s: any) => {
+        f[s.playerId] = s.amount ? String(s.amount) : "";
+      });
+      setFees(f);
     }).catch(() => showToast("Failed to load request", "error"))
       .finally(() => setLoading(false));
   };
@@ -76,6 +85,24 @@ export default function TeamRequestDetailPage() {
       const msg = err.response?.data?.message;
       showToast(Array.isArray(msg) ? msg[0] : (msg || "Failed"), "error");
     } finally { setSaving(false); }
+  };
+
+  /** Writes each fee back into the squad jsonb. */
+  const saveFees = async () => {
+    if (!tr) return;
+    setSavingFees(true);
+    try {
+      const squad = (tr.squad || []).map((s: any) => ({
+        ...s,
+        amount: fees[s.playerId] ? Number(fees[s.playerId]) : undefined,
+      }));
+      await teamRequestsAPI.update(id as string, { squad } as any);
+      showToast("Player fees saved");
+      load();
+    } catch (err: any) {
+      const msg = err.response?.data?.message;
+      showToast(Array.isArray(msg) ? msg[0] : (msg || "Failed"), "error");
+    } finally { setSavingFees(false); }
   };
 
   const del = async () => {
@@ -105,6 +132,16 @@ tr.squad?.forEach(s => {
 });
 
   const balance = (tr.finalAmount || 0) - (tr.advanceAmount || 0);
+
+  const feeTotal = Object.values(fees)
+    .reduce((sum, v) => sum + (Number(v) || 0), 0);
+  const finalNum = Number(form.finalAmount) || 0;
+  const feeMismatch = finalNum > 0 && feeTotal > 0 && feeTotal !== finalNum;
+
+  const payees = (tr.squad || []).map((s: any) => ({
+    id: s.playerId,
+    name: s.playerName,
+  }));
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -266,40 +303,78 @@ tr.squad?.forEach(s => {
             {/* Squad List */}
             {tr.squad?.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm p-5">
-                <h3 className="font-bold mb-3 text-slate-800">👥 Squad List ({tr.squad.length})</h3>
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="font-bold text-slate-800">👥 Squad List ({tr.squad.length})</h3>
+                  <span className={`text-xs font-bold ${feeMismatch ? "text-yellow-600" : "text-slate-500"}`}>
+                    Total: ৳{feeTotal.toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mb-3">
+                  Set each player's fee after the confirmation call. They see this on their earnings page.
+                </p>
+
+                {feeMismatch && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2.5 mb-3">
+                    <p className="text-[11px] text-yellow-700">
+                      Player fees total ৳{feeTotal.toLocaleString()} but the final amount is ৳{finalNum.toLocaleString()}.
+                      Fine if intentional — commission is calculated from the final amount either way.
+                    </p>
+                  </div>
+                )}
+
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {tr.squad.map((s, i) => {
                     const p = players.find(pl => pl.id === s.playerId);
                     const pos = FOOTBALL_POSITIONS.find(fp => fp.key === s.positionKey);
                     return (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                        <span className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                          {s.positionKey}
-                        </span>
-                        {p?.photo ? (
-                          <img src={p.photo} alt="" className="w-10 h-10 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-700">
-                            {s.playerName?.charAt(0)}
+                      <div key={i} className="p-3 bg-slate-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                            {s.positionKey}
+                          </span>
+                          {p?.photo ? (
+                            <img src={p.photo} alt="" className="w-10 h-10 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-700">
+                              {s.playerName?.charAt(0)}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm truncate text-slate-800">{s.playerName}</p>
+                            <p className="text-[11px] text-slate-400">
+                              {pos?.label} • {s.playerPosition}
+                              {p?.user?.phone && ` • ${p.user.phone}`}
+                            </p>
                           </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm truncate text-slate-800">{s.playerName}</p>
-                          <p className="text-[11px] text-slate-400">
-                            {pos?.label} • {s.playerPosition}
-                            {p?.user?.phone && ` • ${p.user.phone}`}
-                          </p>
+                          {p && (
+                            <Link href={`/admin/players/${p.id}/edit`} target="_blank"
+                              className="text-green-600 text-[11px] font-semibold shrink-0 hover:underline">
+                              View ↗
+                            </Link>
+                          )}
                         </div>
-                        {p && (
-                          <Link href={`/admin/players/${p.id}/edit`} target="_blank"
-                            className="text-green-600 text-[11px] font-semibold shrink-0 hover:underline">
-                            View ↗
-                          </Link>
-                        )}
+
+                        <div className="flex items-center gap-2 mt-2 pl-[52px]">
+                          <span className="text-[11px] text-slate-500 shrink-0">Fee ৳</span>
+                          <input type="number" value={fees[s.playerId] ?? ""}
+                            onChange={e => setFees(prev => ({ ...prev, [s.playerId]: e.target.value }))}
+                            placeholder="Not set"
+                            className="w-32 px-2 py-1.5 rounded-lg border border-slate-200 text-sm outline-none focus:border-green-500" />
+                          {s.amount ? (
+                            <span className="text-[10px] text-green-600 font-semibold">✓ saved</span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400">not visible to player yet</span>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
+
+                <button onClick={saveFees} disabled={savingFees}
+                  className="w-full mt-3 bg-slate-800 text-white py-2.5 rounded-lg font-bold text-sm hover:bg-slate-900 disabled:opacity-50 transition">
+                  {savingFees ? "Saving..." : "Save player fees"}
+                </button>
               </div>
             )}
 
@@ -314,6 +389,8 @@ tr.squad?.forEach(s => {
             </div>
           </div>
         </div>
+
+        <PaymentPanel refType="teamRequest" refId={id as string} payees={payees} />
       </div>
 
       {deleteConfirm && (
@@ -324,15 +401,8 @@ tr.squad?.forEach(s => {
         />
       )}
       {toast && <Toast message={toast.message} type={toast.type} />}
-
-      <div className="mt-6">
-        <PaymentPanel refType="teamRequest" refId={id as string} />
-      </div>
-      
     </div>
-    
   );
-  
 }
 
 function Row({ label, value, highlight }: { label: string; value?: string; highlight?: boolean }) {

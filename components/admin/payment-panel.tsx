@@ -19,11 +19,14 @@ const KIND_LABEL: Record<string, { text: string; cls: string }> = {
 
 const tk = (n: number) => `৳${Number(n || 0).toLocaleString()}`;
 
-export default function PaymentPanel({ refType, refId, showPayout = true }: {
+export default function PaymentPanel({ refType, refId, showPayout = true, payees = [] }: {
   refType: "booking" | "teamRequest" | "cameramanBooking" | "vehicleBooking";
   refId: string;
   /** Vehicles are your own service — nothing to disburse. */
   showPayout?: boolean;
+  /** Who can be paid on this booking. Without this, payouts can't be attributed
+   *  and talent will never see the money in their earnings page. */
+  payees?: { id: string; name: string }[];
 }) {
   const { toast, showToast } = useToast();
   const [quote, setQuote] = useState<any>(null);
@@ -33,8 +36,8 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
   const [tab, setTab] = useState<"in" | "out" | "direct">("in");
 
   const [inForm, setInForm] = useState({ amount: "", method: "bkash", externalRef: "", note: "" });
-  const [outForm, setOutForm] = useState({ amount: "", method: "bkash", externalRef: "", note: "" });
-  const [dirForm, setDirForm] = useState({ amount: "", note: "" });
+  const [outForm, setOutForm] = useState({ amount: "", method: "bkash", externalRef: "", note: "", playerId: "" });
+  const [dirForm, setDirForm] = useState({ amount: "", note: "", playerId: "" });
 
   const load = async () => {
     try {
@@ -68,6 +71,14 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
     }
   };
 
+  /** Single payee — preselect so admin can't forget it. */
+  useEffect(() => {
+    if (payees.length === 1) {
+      setOutForm(f => ({ ...f, playerId: payees[0].id }));
+      setDirForm(f => ({ ...f, playerId: payees[0].id }));
+    }
+  }, [payees.length]);
+
   if (loading) return <div className="bg-white rounded-2xl border border-slate-200 p-5 text-slate-400 text-sm">Loading payment info...</div>;
 
   if (!quote) return (
@@ -89,6 +100,8 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
     : quote.paymentStatus === "advancePaid" ? "Advance paid"
     : quote.paymentStatus === "refunded" ? "Refunded"
     : "Unpaid";
+
+  const noPayees = showPayout && payees.length === 0;
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
@@ -177,7 +190,11 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
       {/* Money out */}
       {tab === "out" && showPayout && (
         <div className="p-5 space-y-3">
-          {quote.payoutDue > 0 ? (
+          {noPayees ? (
+            <p className="text-xs text-amber-600">
+              No talent is attached to this booking yet, so a payout can't be attributed.
+            </p>
+          ) : quote.payoutDue > 0 ? (
             <p className="text-xs text-slate-500">
               {tk(quote.payoutDue)} is available to disburse. Send it, then record the TrxID here.
             </p>
@@ -186,6 +203,19 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
               Nothing available yet — commission is retained from money received before payouts unlock.
             </p>
           )}
+
+          <div>
+            <label className={LABEL}>Paying</label>
+            <select value={outForm.playerId}
+              onChange={e => setOutForm(f => ({ ...f, playerId: e.target.value }))} className={FIELD}>
+              <option value="">Select who is being paid</option>
+              {payees.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Required — this is how the payout shows up in their earnings.
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={LABEL}>Amount (৳)</label>
@@ -209,21 +239,25 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
               onChange={e => setOutForm(f => ({ ...f, externalRef: e.target.value }))} className={FIELD} />
           </div>
           <div>
-            <label className={LABEL}>Who was paid (optional note)</label>
+            <label className={LABEL}>Note (optional)</label>
             <input value={outForm.note}
               onChange={e => setOutForm(f => ({ ...f, note: e.target.value }))}
-              placeholder="e.g. Ariful Haque — GK" className={FIELD} />
+              placeholder="e.g. sent after match" className={FIELD} />
           </div>
-          <button disabled={busy || !outForm.amount || quote.payoutDue <= 0}
+          <button disabled={busy || !outForm.amount || !outForm.playerId || quote.payoutDue <= 0}
             onClick={() => submit(
               () => paymentsAPI.payout({
                 refType, refId,
+                playerId: outForm.playerId,
                 amount: Number(outForm.amount),
                 method: outForm.method,
                 externalRef: outForm.externalRef || undefined,
                 note: outForm.note || undefined,
               }),
-              () => setOutForm({ amount: "", method: "bkash", externalRef: "", note: "" }),
+              () => setOutForm({
+                amount: "", method: "bkash", externalRef: "", note: "",
+                playerId: payees.length === 1 ? payees[0].id : "",
+              }),
             )}
             className="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition">
             {busy ? "Recording..." : "Record payout"}
@@ -237,6 +271,16 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
           <p className="text-xs text-slate-500">
             Hirer paid the talent directly on match day. Recorded for the books — no money moves through us.
           </p>
+
+          <div>
+            <label className={LABEL}>Who was paid</label>
+            <select value={dirForm.playerId}
+              onChange={e => setDirForm(f => ({ ...f, playerId: e.target.value }))} className={FIELD}>
+              <option value="">Select talent</option>
+              {payees.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={LABEL}>Amount (৳)</label>
@@ -247,17 +291,21 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
               <label className={LABEL}>Note</label>
               <input value={dirForm.note}
                 onChange={e => setDirForm(f => ({ ...f, note: e.target.value }))}
-                placeholder="Who, and when" className={FIELD} />
+                placeholder="When, and how" className={FIELD} />
             </div>
           </div>
-          <button disabled={busy || !dirForm.amount}
+          <button disabled={busy || !dirForm.amount || !dirForm.playerId}
             onClick={() => submit(
               () => paymentsAPI.direct({
                 refType, refId,
+                playerId: dirForm.playerId,
                 amount: Number(dirForm.amount),
                 note: dirForm.note || undefined,
               }),
-              () => setDirForm({ amount: "", note: "" }),
+              () => setDirForm({
+                amount: "", note: "",
+                playerId: payees.length === 1 ? payees[0].id : "",
+              }),
             )}
             className="bg-slate-700 hover:bg-slate-800 disabled:opacity-40 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition">
             {busy ? "Recording..." : "Record direct payment"}
@@ -276,6 +324,7 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
           <div className="divide-y divide-slate-100">
             {ledger.map(t => {
               const meta = KIND_LABEL[t.kind] || { text: t.kind, cls: "bg-slate-100 text-slate-600" };
+              const payee = t.playerId ? payees.find(p => p.id === t.playerId) : null;
               return (
                 <div key={t.id} className="px-5 py-3 flex items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -283,6 +332,9 @@ export default function PaymentPanel({ refType, refId, showPayout = true }: {
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${meta.cls}`}>
                         {meta.text}
                       </span>
+                      {payee && (
+                        <span className="text-[11px] font-semibold text-slate-600">{payee.name}</span>
+                      )}
                       {t.externalRef && (
                         <span className="text-[11px] text-slate-400 font-mono">{t.externalRef}</span>
                       )}

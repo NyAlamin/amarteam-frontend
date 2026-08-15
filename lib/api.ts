@@ -193,6 +193,9 @@ export const paymentsAPI = {
   record: (data: any) => api.post("/payments/record", data),
   payout: (data: any) => api.post("/payments/payout", data),
   direct: (data: any) => api.post("/payments/direct", data),
+  myEarnings: () => api.get("/payments/my-earnings"),
 };
+
+
 
 export default api;

@@ -32,6 +32,8 @@ export interface SquadEntry {
   playerId: string;
   playerName: string;
   playerPosition: string;
+  /** Fee assigned by admin after the confirmation call. */
+  amount?: number;
 }
 
 // export interface User {
