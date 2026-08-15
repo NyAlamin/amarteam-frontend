@@ -259,6 +259,15 @@ export const TEAM_STATUS_INFO: Record<string, {
     color: "text-green-400", bg: "bg-green-900/30 border-green-800",
     icon: "✓", desc: "Booking confirmed. Players are locked in for this match.",
   },
+
+  playerOnTheWay: {
+    icon: "🚗",
+    label: "Players On The Way",
+    desc: "Squad has left for the venue. Hirer has been notified.",
+    labelBn: "",
+    color: "",
+    bg: ""
+  },
   completed: {
     label: "Completed", labelBn: "সম্পন্ন",
     color: "text-purple-400", bg: "bg-purple-900/30 border-purple-800",
