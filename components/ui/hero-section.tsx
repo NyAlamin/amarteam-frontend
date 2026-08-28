@@ -38,8 +38,14 @@ const slides = [
 
 export default function HeroSection({ stats }: { stats: HeroStats }) {
   const { get } = useSettings();
-  const heroImage = get("heroImage");
+
+  const heroImages = [
+    get("heroImage1") || get("heroImage"),
+    get("heroImage2"),
+    get("heroImage3"),
+  ];
   const logo = get("logo");
+
   const [current, setCurrent] = useState(0);
 
   const goTo = useCallback((idx: number) => {
@@ -64,19 +70,23 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
           {/* ─── MAIN HERO CARD ─── */}
           <div className="flex-1 relative rounded-2xl lg:rounded-3xl overflow-hidden min-h-[320px] sm:min-h-[380px] lg:min-h-[480px] bg-gradient-to-br from-[#0a1a0f] via-[#0d2818] to-[#0a1a0f]">
 
-            {/* BG Image */}
-            {heroImage && (
+            {/* BG Image — per slide */}
+            {heroImages[current] && (
               <>
-                <div className="absolute inset-0">
-                  <img src={heroImage} alt="" className="w-full h-full object-cover" />
+                <div className="absolute inset-0" key={`bg-${current}`}>
+                  <img
+                    src={heroImages[current]}
+                    alt=""
+                    className="w-full h-full object-cover animate-[fadeSlideUp_0.6s_ease-out]"
+                  />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0a1a0f]/95 via-[#0a1a0f]/80 to-[#0a1a0f]/40 sm:to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a1a0f]/70 via-transparent to-[#0a1a0f]/30" />
               </>
             )}
 
-            {/* Ambient glow (no hero image) */}
-            {!heroImage && (
+            {/* Ambient glow (no image for this slide) */}
+            {!heroImages[current] && (
               <div className="absolute inset-0">
                 <div className="absolute top-1/3 right-[10%] w-48 sm:w-72 h-48 sm:h-72 bg-primary-500/[0.07] rounded-full blur-[80px] sm:blur-[100px]" />
                 <div className="absolute bottom-1/4 left-[15%] w-40 sm:w-60 h-40 sm:h-60 bg-primary-600/[0.05] rounded-full blur-[60px] sm:blur-[80px]" />
@@ -147,26 +157,14 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
                 </div>
               </div>
 
-              {/* Right — hero artwork (desktop only) */}
+              {/* Right — artwork area (desktop only) */}
               <div className="hidden lg:flex flex-1 items-center justify-center relative">
-                {!heroImage && (
-                  <div className="text-center">
-                    {logo ? (
-                      <img
-                        src={logo}
-                        alt=""
-                        className="h-36 mx-auto object-contain opacity-20 animate-[float_6s_ease-in-out_infinite]"
-                      />
-                    ) : (
-                      <div className="w-40 h-40 mx-auto rounded-3xl bg-gradient-to-br from-primary-500/20 to-primary-700/10 border border-primary-500/10 flex items-center justify-center animate-[float_6s_ease-in-out_infinite]">
-                        <svg viewBox="0 0 24 24" fill="none" className="w-20 h-20 text-primary-500/30">
-                          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.2" />
-                          <path d="M12 7l3 2.2-1.15 3.5h-3.7L9 9.2 12 7z" fill="currentColor" />
-                          <path d="M12 3v4M4.5 9l3.5 2.5M19.5 9L16 11.5M7 20l1.5-4M17 20l-1.5-4" stroke="currentColor" strokeWidth="1" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
+                {!heroImages[current] && logo && (
+                  <img
+                    src={logo}
+                    alt=""
+                    className="h-36 mx-auto object-contain opacity-20 animate-[float_6s_ease-in-out_infinite]"
+                  />
                 )}
               </div>
             </div>

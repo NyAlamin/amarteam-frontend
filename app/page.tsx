@@ -72,7 +72,7 @@ export default function HomePage() {
 
       <ForeignPlayersSection />
 
-      <Section title="Top Players" icon="⚽" link="/players?playerType=player" loading={loading} empty={players.length === 0}>
+      <Section title="Deshi Top Players" icon="⚽" link="/players?playerType=player" loading={loading} empty={players.length === 0}>
         <Grid>{players.slice(0, 4).map(p => <PlayerCard key={p.id} player={p} />)}</Grid>
       </Section>
 
