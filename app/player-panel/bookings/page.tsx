@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { bookingsAPI } from "@/lib/api";
-import StatusPill from "@/components/ui/status-pill";
 import Loading from "@/components/ui/loading";
-import { Booking } from "@/lib/types";
+import { Booking, BOOKING_STATUS_INFO } from "@/lib/types";
 
 const matchTypeLabel: Record<string, { label: string; icon: string }> = {
   friendly: { label: "Friendly", icon: "🤝" },
@@ -41,14 +40,17 @@ export default function PlayerBookingsPage() {
       ) : (
         bookings.map(b => {
           const mt = matchTypeLabel[(b as any).matchType] || { label: "Match", icon: "⚽" };
+          const info = BOOKING_STATUS_INFO[b.status];
           return (
             <div key={b.id} className="glass rounded-2xl p-4">
-              <div className="flex justify-between items-start mb-3">
+              <div className="flex justify-between items-start gap-3 mb-3">
                 <div className="min-w-0">
                   <p className="font-bold text-sm text-white truncate">{b.hirer?.name}</p>
                   <p className="text-xs text-white/40">{b.hirer?.phone || b.hirer?.email}</p>
                 </div>
-                <StatusPill status={b.status} />
+                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border shrink-0 ${info?.bg} ${info?.color}`}>
+                  {info?.icon} {info?.label}
+                </span>
               </div>
 
               <div className="bg-dark-card rounded-xl p-3 space-y-1.5 border border-dark-border">
@@ -73,6 +75,21 @@ export default function PlayerBookingsPage() {
                   </div>
                 )}
               </div>
+
+              {/* Fee — only once the hirer's money has landed */}
+              {b.paymentStatus && b.paymentStatus !== "unpaid" && (
+                <div className="mt-2 bg-primary-900/20 border border-primary-800/40 rounded-xl p-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] text-white/50">Your fee for this match</span>
+                    <span className="font-bold text-primary-400 text-sm">
+                      ৳{Number((b.finalAmount ?? b.amount ?? 0) - (b.commissionAmount ?? 0)).toLocaleString()}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-white/30 mt-1">
+                    Full breakdown in Earnings
+                  </p>
+                </div>
+              )}
 
               <p className="text-[10px] text-white/20 mt-2">
                 Received: {new Date(b.createdAt).toLocaleDateString()}

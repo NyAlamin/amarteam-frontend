@@ -16,13 +16,18 @@ export enum PlayerType {
   CAMERAMAN = "cameraman",
 }
 export enum BookingStatus {
-  PENDING = "pending", CONFIRMED = "confirmed",
-  CANCELLED = "cancelled", COMPLETED = "completed",
+  CALLING_SOON = "callingSoon",
+  ADVANCE_PENDING = "advancePending",
+  CONFIRMED = "confirmed",
+  PLAYER_ON_THE_WAY = "playerOnTheWay",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
 }
 export enum TeamRequestStatus {
   CALLING_SOON = "callingSoon",
   ADVANCE_PENDING = "advancePending",
   CONFIRMED = "confirmed",
+  PLAYER_ON_THE_WAY = "playerOnTheWay",
   COMPLETED = "completed",
   CANCELLED = "cancelled",
 }
@@ -35,22 +40,6 @@ export interface SquadEntry {
   /** Fee assigned by admin after the confirmation call. */
   amount?: number;
 }
-
-// export interface User {
-//   id: string; name: string; email: string; phone?: string;
-//   location?: string; role: Role; isActive: boolean;
-//   // Location
-//   district?: string;
-//   upazila?: string;
-//   // Cameraman
-//   perMatchRate?: number;
-//   equipment?: string;
-//   portfolioPhotos?: PhotoEntry[];
-//   portfolioVideos?: VideoEntry[];
-//   hasDrone?: boolean;
-//   doesEditing?: boolean;
-//   createdAt: string; updatedAt: string;
-// }
 
 export interface User {
   id: string;
@@ -92,16 +81,14 @@ export interface MatchHistoryEntry {
   result: string; performance: string;
 
   // Coach fields
-coachingLicense?: string;
-specialization?: string;
-tacticsStyle?: string;
-// Referee fields
-refereeLicense?: string;
-fifaBadge?: boolean;
-matchesOfficiated?: number;
+  coachingLicense?: string;
+  specialization?: string;
+  tacticsStyle?: string;
+  // Referee fields
+  refereeLicense?: string;
+  fifaBadge?: boolean;
+  matchesOfficiated?: number;
 }
-
-
 
 export interface PlayerStats {
   goals: number; assists: number; matches: number;
@@ -157,6 +144,15 @@ export interface Booking {
   playerId: string; matchDate: string; tournament: string;
   matchType?: string;
   message?: string; amount: number; status: BookingStatus;
+  adminNote?: string;
+  finalAmount?: number;
+  advanceAmount?: number;
+  // Payment
+  commissionRate?: number;
+  commissionAmount?: number;
+  amountPaid?: number;
+  payoutPaid?: number;
+  paymentStatus?: string;
   createdAt: string; updatedAt: string;
 }
 
@@ -180,6 +176,12 @@ export interface TeamRequest {
   adminNote?: string;
   finalAmount?: number;
   advanceAmount?: number;
+  // Payment
+  commissionRate?: number;
+  commissionAmount?: number;
+  amountPaid?: number;
+  payoutPaid?: number;
+  paymentStatus?: string;
   suggestedPlayerIds: string[];
   createdAt: string;
   updatedAt: string;
@@ -259,14 +261,10 @@ export const TEAM_STATUS_INFO: Record<string, {
     color: "text-green-400", bg: "bg-green-900/30 border-green-800",
     icon: "✓", desc: "Booking confirmed. Players are locked in for this match.",
   },
-
   playerOnTheWay: {
-    icon: "🚗",
-    label: "Players On The Way",
-    desc: "Squad has left for the venue. Hirer has been notified.",
-    labelBn: "",
-    color: "",
-    bg: ""
+    label: "Players On The Way", labelBn: "খেলোয়াড় পথে আছে",
+    color: "text-cyan-400", bg: "bg-cyan-900/30 border-cyan-800",
+    icon: "🚗", desc: "Squad has left for the venue. Hirer has been notified.",
   },
   completed: {
     label: "Completed", labelBn: "সম্পন্ন",
@@ -277,6 +275,41 @@ export const TEAM_STATUS_INFO: Record<string, {
     label: "Cancelled", labelBn: "বাতিল",
     color: "text-red-400", bg: "bg-red-900/30 border-red-800",
     icon: "✕", desc: "This request was cancelled.",
+  },
+};
+
+export const BOOKING_STATUS_INFO: Record<string, {
+  label: string; labelBn: string; color: string; bg: string; icon: string; desc: string;
+}> = {
+  callingSoon: {
+    label: "Calling Soon", labelBn: "শীঘ্রই কল করা হবে",
+    color: "text-blue-400", bg: "bg-blue-900/30 border-blue-800",
+    icon: "📞", desc: "We'll contact you shortly to confirm details and pricing.",
+  },
+  advancePending: {
+    label: "Advance Pending", labelBn: "অগ্রিম বাকি",
+    color: "text-yellow-400", bg: "bg-yellow-900/30 border-yellow-800",
+    icon: "💰", desc: "Waiting for advance payment to confirm the booking.",
+  },
+  confirmed: {
+    label: "Confirmed", labelBn: "নিশ্চিত",
+    color: "text-green-400", bg: "bg-green-900/30 border-green-800",
+    icon: "✓", desc: "Booking confirmed. The player is locked in for this match.",
+  },
+  playerOnTheWay: {
+    label: "On The Way", labelBn: "পথে আছে",
+    color: "text-cyan-400", bg: "bg-cyan-900/30 border-cyan-800",
+    icon: "🚗", desc: "Player has left for the venue. Hirer has been notified.",
+  },
+  completed: {
+    label: "Completed", labelBn: "সম্পন্ন",
+    color: "text-purple-400", bg: "bg-purple-900/30 border-purple-800",
+    icon: "🏁", desc: "Match completed successfully.",
+  },
+  cancelled: {
+    label: "Cancelled", labelBn: "বাতিল",
+    color: "text-red-400", bg: "bg-red-900/30 border-red-800",
+    icon: "✕", desc: "This booking was cancelled.",
   },
 };
 
@@ -345,6 +378,12 @@ export interface VehicleBooking {
   advanceAmount?: number;
   status: string;
   adminNote?: string;
+  // Payment
+  commissionRate?: number;
+  commissionAmount?: number;
+  amountPaid?: number;
+  payoutPaid?: number;
+  paymentStatus?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -508,6 +547,12 @@ export interface CameramanBooking {
   advanceAmount?: number;
   status: string;
   adminNote?: string;
+  // Payment
+  commissionRate?: number;
+  commissionAmount?: number;
+  amountPaid?: number;
+  payoutPaid?: number;
+  paymentStatus?: string;
   createdAt: string;
   updatedAt: string;
 }
