@@ -503,6 +503,7 @@ export interface OrderItem {
 }
 
 export interface Order {
+  amountPaid: number;
   id: string;
   orderNo: string;
   customer: User;

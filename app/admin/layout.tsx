@@ -19,6 +19,8 @@ const nav = [
   { href: "/admin/cameraman-bookings", label: "Cameraman", icon: "📷", group: "Bookings" },
   { href: "/admin/vehicle-bookings", label: "Vehicle", icon: "🚗", group: "Bookings" },
 
+  { href: "/admin/claims", label: "Payments" },
+
   { href: "/admin/vehicles", label: "Vehicles", icon: "🚙", group: "Manage" },
   { href: "/admin/shop/products", label: "Products", icon: "🛍️", group: "Manage" },
   { href: "/admin/shop/categories", label: "Categories", icon: "🏷️", group: "Manage" },

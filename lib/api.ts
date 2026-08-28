@@ -196,6 +196,12 @@ export const paymentsAPI = {
   payout: (data: any) => api.post("/payments/payout", data),
   direct: (data: any) => api.post("/payments/direct", data),
   myEarnings: () => api.get("/payments/my-earnings"),
+    submitClaim: (data: any) => api.post("/payments/claims", data),
+  myClaims: () => api.get("/payments/claims/my"),
+  listClaims: (status?: string) => api.get("/payments/claims", { params: status ? { status } : {} }),
+  claimDetail: (id: string) => api.get(`/payments/claims/${id}`),
+  approveClaim: (id: string, data: any) => api.post(`/payments/claims/${id}/approve`, data),
+  rejectClaim: (id: string, data: any) => api.post(`/payments/claims/${id}/reject`, data),
 };
 
 
