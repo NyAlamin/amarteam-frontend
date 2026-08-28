@@ -31,6 +31,8 @@ const nav = [
   { href: "/admin/reviews", label: "Reviews", icon: "💬", group: "Other" },
   { href: "/admin/settings", label: "Settings", icon: "⚙️", group: "Other" },
   { href: "/admin/branding", label: "Branding", icon: "🎨", group: "Other" },
+    { href: "/admin/popup", label: "Popup", icon: "🎉", group: "Other" },
+  
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

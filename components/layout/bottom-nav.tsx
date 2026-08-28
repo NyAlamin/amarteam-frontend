@@ -54,8 +54,8 @@ export default function BottomNav() {
           </Link>
 
           {/* Cart */}
-          <Link href="/checkout" className={`flex flex-col items-center justify-center gap-[3px] ${
-            pathname === "/checkout" || pathname === "/cart" ? "text-primary-400" : "text-white/40"
+          <Link href="/my-orders" className={`flex flex-col items-center justify-center gap-[3px] ${
+  pathname === "/my-orders" || pathname === "/checkout" || pathname === "/cart" ? "text-primary-400" : "text-white/40"
           }`}>
             <div className="relative">
               <svg viewBox="0 0 24 24" fill="none" className="w-[21px] h-[21px]">

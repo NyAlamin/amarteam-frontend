@@ -100,3 +100,9 @@
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: 70px;
+  }
+}

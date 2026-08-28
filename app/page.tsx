@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
-import BottomNav from "@/components/layout/bottom-nav";
 import HeroSection from "@/components/ui/hero-section";
 import PlayerCard from "@/components/ui/player-card";
 import CameramanCard from "@/components/ui/cameraman-card";
@@ -15,6 +14,7 @@ import { playersAPI, vehiclesAPI, shopAPI } from "@/lib/api";
 import { useLang } from "@/lib/language-context";
 import { Player, Vehicle, Product } from "@/lib/types";
 import ForeignPlayersSection from "@/components/ui/foreign-players-section";
+import PromoPopup from "@/components/ui/promo-popup";
 
 
 function useReveal() {
@@ -59,6 +59,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-dark text-white pb-[70px] lg:pb-0">
       <Navbar />
+      <PromoPopup />
 
       <HeroSection
         stats={{
@@ -118,7 +119,6 @@ export default function HomePage() {
       </section>
 
       <Footer />
-      <BottomNav />
     </div>
   );
 }
