@@ -9,6 +9,7 @@ import { useSettings } from "@/lib/settings-context";
 import { Role } from "@/lib/types";
 import { useState, useEffect } from "react";
 import BottomNav from "@/components/layout/bottom-nav";
+import SearchDropdown from "@/components/ui/search-dropdown";
 
 export default function Navbar() {
   const { user, logout, loading } = useAuth();
@@ -23,7 +24,7 @@ export default function Navbar() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [search, setSearch] = useState("");
+  // const [search, setSearch] = useState("");
 
   const logo = get("logo");
   const siteName = get("siteName") || "আমার টিম";
@@ -37,12 +38,12 @@ export default function Navbar() {
 
   useEffect(() => { setOpen(false); setUserOpen(false); }, [pathname]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!search.trim()) return;
-    router.push(`/players?playerType=player&search=${encodeURIComponent(search.trim())}`);
-    setSearch("");
-  };
+  // const handleSearch = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!search.trim()) return;
+  //   router.push(`/players?playerType=player&search=${encodeURIComponent(search.trim())}`);
+  //   setSearch("");
+  // };
 
   const talentActive = ["/players", "/cameramen", "/foreign-players"].includes(pathname);
 
@@ -79,18 +80,8 @@ export default function Navbar() {
             </Link>
 
             {/* Search */}
-            <form onSubmit={handleSearch} className="flex flex-1 max-w-xl mx-2">
-              <div className="relative w-full group">
-                <svg viewBox="0 0 24 24" fill="none"
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-primary-400 transition-colors">
-                  <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-                  <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-                <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search players, coaches, referees…"
-                  className="w-full bg-white/[0.06] border border-white/[0.08] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-primary-500/50 focus:bg-white/[0.08] focus:ring-1 focus:ring-primary-500/20 transition-all" />
-              </div>
-            </form>
+            <SearchDropdown className="flex-1 max-w-xl mx-2" />
+            
 
             {/* Desktop nav links */}
             <div className="flex items-center gap-0.5 shrink-0">
@@ -265,30 +256,10 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ─── MOBILE SEARCH BAR (always visible) ─── */}
-        <div className="lg:hidden px-3 pb-2.5">
-          <form onSubmit={handleSearch} className="relative flex">
-            <svg viewBox="0 0 24 24" fill="none"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 z-10">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-              <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search players, coaches…"
-              className="flex-1 bg-white/[0.06] border border-white/[0.08] border-r-0 rounded-l-xl pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-primary-500/50 transition-all"
-            />
-            <button type="submit"
-              className="px-3.5 bg-primary-500 rounded-r-xl text-white shrink-0 active:bg-primary-400 transition-colors">
-              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
-                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.5" />
-                <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-              </svg>
-            </button>
-          </form>
-        </div>
+       {/* ─── MOBILE SEARCH BAR (always visible) ─── */}
+<div className="lg:hidden px-3 pb-2.5">
+  <SearchDropdown />
+</div>
       </nav>
 
       {/* ─── MOBILE DRAWER ─── */}
