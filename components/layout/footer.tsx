@@ -105,7 +105,7 @@ export default function Footer() {
             © {new Date().getFullYear()} {siteName}. {t("footer.rights")}
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-white/15 text-[11px]">Built in Bangladesh 🇧🇩</span>
+            <span className="text-white/15 text-[11px]">Build by <a href="https://nyalamin.vercel.app/">Alamin</a></span>
           </div>
         </div>
       </div>
