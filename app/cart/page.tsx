@@ -30,6 +30,7 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
+  const [phone, setPhone] = useState("");
   const [matchDate, setMatchDate] = useState("");
   const [tournament, setTournament] = useState("");
   const [location, setLocation] = useState("");
@@ -103,6 +104,7 @@ export default function CartPage() {
 
   const onSubmit = async () => {
     if (!matchDate) { showToast("Select a match date", "error"); return; }
+    if (!/^01\d{9}$/.test(phone)) { showToast("Enter a valid BD phone number (01XXXXXXXXX)", "error"); return; }
     if (assignedCount === 0) { showToast("Assign at least one player", "error"); return; }
 
     if (!user) { saveDraft(); setShowLoginPrompt(true); return; }
@@ -111,19 +113,20 @@ export default function CartPage() {
     setSubmitting(true);
     try {
       await teamRequestsAPI.create({
-        matchDate,
-        tournament: tournament || undefined,
-        location: location || undefined,
-        budget: budget ? Number(budget) : 0,
-        playersNeeded: assignedCount,
-        message: message || undefined,
-        squad: assignedFlat.map(({ key, player }) => ({
-          positionKey: key,
-          playerId: player.id,
-          playerName: player.user?.name || "",
-          playerPosition: player.position || "",
-        })),
-      });
+  matchDate,
+  tournament: tournament || undefined,
+  location: location || undefined,
+  budget: budget ? Number(budget) : 0,
+  playersNeeded: assignedCount,
+  phone,
+  message: message || undefined,
+  squad: assignedFlat.map(({ key, player }) => ({
+    positionKey: key,
+    playerId: player.id,
+    playerName: player.user?.name || "",
+    playerPosition: player.position || "",
+  })),
+});
       clearSquad();
       setPositions({});
       sessionStorage.removeItem("cart-draft");
@@ -191,6 +194,13 @@ export default function CartPage() {
                     <input value={tournament} onChange={e => setTournament(e.target.value)} placeholder="Mirpur Cup"
                       className="w-full px-3 py-2.5 rounded-xl bg-dark-card border border-dark-border text-white text-sm outline-none focus:border-primary-500" />
                   </div>
+
+                  <div className="col-span-2">
+                  <label className="block text-xs font-semibold text-white/50 mb-1">Phone Number *</label>
+                 <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="01XXXXXXXXX" maxLength={11}
+                   className="w-full px-3 py-2.5 rounded-xl bg-dark-card border border-dark-border text-white text-sm outline-none focus:border-primary-500" />
+                 <p className="text-[10px] text-white/25 mt-1">We'll call to confirm pricing and match details</p>
+               </div>
                   <div>
                     <label className="block text-xs font-semibold text-white/50 mb-1">Location</label>
                     <input value={location} onChange={e => setLocation(e.target.value)} placeholder="Venue"

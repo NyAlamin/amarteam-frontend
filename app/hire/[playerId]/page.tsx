@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -20,6 +21,7 @@ export default function HirePage() {
   const [submitting, setSubmitting] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
 
+  const [phone, setPhone] = useState("");
   const [matchDate, setMatchDate] = useState("");
   const [tournament, setTournament] = useState("");
   const [location, setLocation] = useState("");
@@ -45,6 +47,7 @@ export default function HirePage() {
 
   const onSubmit = async () => {
     if (!matchDate) { showToast("Please select a match date", "error"); return; }
+    if (!/^01\d{9}$/.test(phone)) { showToast("Enter a valid BD phone number (01XXXXXXXXX)", "error"); return; }
     if (!tournament.trim()) { showToast("Tournament name is required", "error"); return; }
     if (isDateUnavailable(matchDate)) { showToast("Player is not available on this date", "error"); return; }
 
@@ -55,6 +58,7 @@ export default function HirePage() {
         matchDate,
         tournament: tournament.trim(),
         matchType,
+        phone,
         message: `${location ? `Location: ${location}\n` : ""}${message}`,
       });
       showToast("Hire request submitted! Admin will confirm and share pricing.");
@@ -105,6 +109,21 @@ export default function HirePage() {
               Submit your request and our team will contact you with the final price based on match type, date, and duration.
             </p>
           </div>
+
+          {/* Phone */}
+<div>
+  <label className="block text-sm font-semibold text-white/70 mb-1">
+    Phone Number *
+  </label>
+  <input
+    value={phone}
+    onChange={e => setPhone(e.target.value)}
+    placeholder="01XXXXXXXXX"
+    maxLength={11}
+    className="w-full px-4 py-2.5 rounded-xl bg-dark-card border border-dark-border text-white"
+  />
+  <p className="text-[11px] text-white/30 mt-1">We'll call this number to confirm details and pricing</p>
+</div>
 
           <div className="space-y-4">
             {/* Match Date with Calendar */}
