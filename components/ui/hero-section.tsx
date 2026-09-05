@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSettings } from "@/lib/settings-context";
+import RequestPlayerCard from "./request-player-card";
 
 interface HeroStats {
   players: number;
@@ -172,33 +173,9 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
 
           {/* ─── SIDE PANEL (xl desktop only) ─── */}
           <div className="hidden xl:flex flex-col gap-5 w-[300px] shrink-0">
+            <RequestPlayerCard />
 
-            {/* Stats card */}
-            <div className="rounded-2xl bg-dark-card border border-white/[0.07] p-6 flex-1">
-              <p className="text-primary-400 text-xs font-bold tracking-wide mb-4">PLATFORM STATS</p>
-              <div className="space-y-4">
-                {[
-                  { icon: "⚽", label: "Players", value: stats.players },
-                  { icon: "🎓", label: "Coaches", value: stats.coaches },
-                  { icon: "🏁", label: "Referees", value: stats.referees },
-                  { icon: "📷", label: "Cameramen", value: stats.cameramen },
-                  { icon: "🚗", label: "Vehicles", value: stats.vehicles },
-                ].map((s, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <span className="text-sm text-white/60 flex items-center gap-2">
-                      <span className="text-base">{s.icon}</span> {s.label}
-                    </span>
-                    <span className="text-lg font-bold text-white">{s.value}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-5 pt-4 border-t border-white/[0.07] flex items-center justify-between">
-                <span className="text-sm text-white/60">Total talent</span>
-                <span className="text-xl font-bold text-primary-400">{totalTalent}</span>
-              </div>
-            </div>
-
-            {/* Quick action card */}
+            {/* Join as Talent card */}
             <div className="rounded-2xl bg-dark-card border border-white/[0.07] p-5">
               <div className="flex items-start gap-3 mb-4">
                 <div className="w-9 h-9 rounded-xl bg-primary-500/15 flex items-center justify-center shrink-0 mt-0.5">
@@ -223,11 +200,13 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
               </Link>
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* ─── MOBILE STATS BAR ─── */}
-      <div className="xl:hidden px-3 sm:px-4 -mt-1 pb-3 sm:pb-4">
+      {/* ─── MOBILE SECTION ─── */}
+      <div className="xl:hidden px-3 sm:px-4 space-y-3 pb-3 sm:pb-4">
+        {/* Stats bar */}
         <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
           {[
             { v: stats.players, l: "Players" },
@@ -241,6 +220,9 @@ export default function HeroSection({ stats }: { stats: HeroStats }) {
             </div>
           ))}
         </div>
+
+        {/* Request player card — mobile */}
+        <RequestPlayerCard />
       </div>
 
       <style jsx>{`

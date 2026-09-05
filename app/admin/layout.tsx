@@ -18,6 +18,7 @@ const nav = [
   { href: "/admin/team-requests", label: "Team Requests", icon: "🏆", group: "Bookings" },
   { href: "/admin/cameraman-bookings", label: "Cameraman", icon: "📷", group: "Bookings" },
   { href: "/admin/vehicle-bookings", label: "Vehicle", icon: "🚗", group: "Bookings" },
+  { href: "/admin/player-requests", label: "Player Requests", icon: "🔍", group: "Bookings" },
 
   { href: "/admin/claims", label: "Payments" },
 

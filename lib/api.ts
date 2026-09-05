@@ -80,6 +80,15 @@ export const bookingsAPI = {
   complete: (id: string) => api.patch(`/bookings/${id}/complete`),
 };
 
+export const playerRequestsAPI = {
+  create: (data: any) => api.post("/player-requests", data),
+  getMy: () => api.get("/player-requests/my"),
+  getAll: () => api.get("/player-requests"),
+  getOne: (id: string) => api.get(`/player-requests/${id}`),
+  update: (id: string, data: any) => api.patch(`/player-requests/${id}`, data),
+  delete: (id: string) => api.delete(`/player-requests/${id}`),
+};
+
 export const reviewsAPI = {
   getByPlayer: (playerId: string) => api.get(`/reviews/player/${playerId}`),
   create: (data: any) => api.post("/reviews", data),
