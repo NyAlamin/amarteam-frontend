@@ -73,14 +73,16 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* ─── Join ─── */}
-          <div>
-            <h4 className="text-white font-semibold text-sm mb-4">Join Us</h4>
-            <div className="space-y-2.5">
-              <FooterLink href="/auth/register-player" label="Register as Talent" />
-              <FooterLink href="/auth/register" label="Hirer Sign Up" />
-              <FooterLink href="/auth/login" label="Login" />
-            </div>
+          {/* ─── Company ─── */}
+<div>
+  <h4 className="text-white font-semibold text-sm mb-4">Company</h4>
+  <div className="space-y-2.5">
+    <FooterLink href="/about" label="About Us" />
+    <FooterLink href="/policy" label="Privacy & Terms" />
+    <FooterLink href="/auth/register-player" label="Register as Talent" />
+    <FooterLink href="/auth/register" label="Hirer Sign Up" />
+    <FooterLink href="/auth/login" label="Login" />
+  </div>
 
             {/* CTA */}
             <div className="mt-5">
